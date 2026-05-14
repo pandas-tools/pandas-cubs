@@ -5,7 +5,6 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db/client";
 import { lessonTranslations, lessons } from "@/lib/db/schema";
 import { createDirectUpload } from "@/lib/mux";
-import { env } from "@/lib/env";
 
 const bodySchema = z.object({
   lessonId: z.string().uuid(),
@@ -107,7 +106,8 @@ export async function POST(req: Request) {
     : ("en" as Supported);
 
   const upload = await createDirectUpload({
-    corsOrigin: env().NEXT_PUBLIC_SITE_URL,
+    corsOrigin:
+      process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
     language: subLang,
   });
 

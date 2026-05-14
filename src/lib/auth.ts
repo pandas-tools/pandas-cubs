@@ -5,7 +5,6 @@ import { eq } from "drizzle-orm";
 import { db } from "./db/client";
 import { users, accounts, verificationTokens } from "./db/schema";
 import { checkEmailAllowed } from "./domain";
-import { env } from "./env";
 
 declare module "next-auth" {
   interface Session {
@@ -20,10 +19,11 @@ declare module "next-auth" {
   }
 }
 
-const e = env();
-
+// Read env directly (process.env) — avoid env() validator at module top so
+// edge-runtime middleware doesn't trip on missing vars. The validator is
+// only used in Node-runtime API routes that need stricter checks.
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  secret: e.AUTH_SECRET,
+  secret: process.env.AUTH_SECRET,
   trustHost: true,
   adapter: DrizzleAdapter(db, {
     usersTable: users,
@@ -38,8 +38,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   providers: [
     Resend({
-      apiKey: e.AUTH_RESEND_KEY,
-      from: e.AUTH_EMAIL_FROM,
+      apiKey: process.env.AUTH_RESEND_KEY,
+      from: process.env.AUTH_EMAIL_FROM,
     }),
   ],
   events: {

@@ -1,7 +1,13 @@
 import { eq } from "drizzle-orm";
 import { db } from "./db/client";
 import { clientAllowedDomains } from "./db/schema";
-import { adminAllowlist } from "./env";
+
+function adminAllowlist(): string[] {
+  return (process.env.ADMIN_ALLOWLIST ?? "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+}
 
 export function extractDomain(email: string): string | null {
   const at = email.indexOf("@");

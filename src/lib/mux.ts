@@ -1,4 +1,5 @@
 import Mux from "@mux/mux-node";
+import crypto from "node:crypto";
 
 type MuxLanguageCode =
   | "en"
@@ -23,39 +24,35 @@ type MuxLanguageCode =
   | "da"
   | "ro"
   | "bg";
-import crypto from "node:crypto";
-import { env } from "./env";
 
 declare global {
   // eslint-disable-next-line no-var
   var __cubs_mux: Mux | undefined;
 }
 
-const e = env();
-
-export const mux =
-  global.__cubs_mux ??
-  new Mux({
-    tokenId: e.MUX_TOKEN_ID,
-    tokenSecret: e.MUX_TOKEN_SECRET,
-  });
-
-if (process.env.NODE_ENV !== "production") {
-  global.__cubs_mux = mux;
+function getMux(): Mux {
+  if (global.__cubs_mux) return global.__cubs_mux;
+  const tokenId = process.env.MUX_TOKEN_ID;
+  const tokenSecret = process.env.MUX_TOKEN_SECRET;
+  if (!tokenId || !tokenSecret) {
+    throw new Error("MUX_TOKEN_ID / MUX_TOKEN_SECRET not set");
+  }
+  const m = new Mux({ tokenId, tokenSecret });
+  if (process.env.NODE_ENV !== "production") global.__cubs_mux = m;
+  return m;
 }
 
 /**
  * Verify a Mux webhook signature.
  * Mux signs requests with HMAC-SHA256 over `${timestamp}.${rawBody}`.
  * Header: `mux-signature: t=<unix>,v1=<hex>`
- * Returns true if the signature matches and the timestamp is within tolerance.
  */
 export function verifyMuxSignature(
   rawBody: string,
   signatureHeader: string | null,
   toleranceSeconds = 300,
 ): boolean {
-  const secret = env().MUX_WEBHOOK_SECRET;
+  const secret = process.env.MUX_WEBHOOK_SECRET;
   if (!secret) {
     console.warn("MUX_WEBHOOK_SECRET not set — refusing webhook");
     return false;
@@ -92,12 +89,12 @@ export function verifyMuxSignature(
 
 /**
  * Create a direct upload URL for an admin to upload a video to.
- * Returns: { url: <upload URL>, id: <upload id>, asset_id: null (until upload completes) }
  */
 export async function createDirectUpload(opts: {
   corsOrigin: string;
   language?: MuxLanguageCode;
 }) {
+  const mux = getMux();
   const upload = await mux.video.uploads.create({
     cors_origin: opts.corsOrigin,
     new_asset_settings: {
@@ -108,7 +105,8 @@ export async function createDirectUpload(opts: {
           generated_subtitles: [
             {
               language_code: (opts.language ?? "en") as MuxLanguageCode,
-              name: (opts.language ?? "en") === "en" ? "English (CC)" : "Subtitles",
+              name:
+                (opts.language ?? "en") === "en" ? "English (CC)" : "Subtitles",
             },
           ],
         },
