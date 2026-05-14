@@ -23,7 +23,9 @@
     "@auth/drizzle-adapter": "^1.7.4",
     "@mux/mux-node": "^9.0.1",
     "@mux/mux-player-react": "^3.2.5",
+    "@tailwindcss/postcss": "^4",
     "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.30.0",
     "drizzle-orm": "^0.36.4",
     "next": "16.2.6",
     "next-auth": "5.0.0-beta.31",
@@ -31,20 +33,18 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "resend": "^4.0.1",
+    "tailwindcss": "^4",
+    "tsx": "^4.19.2",
+    "typescript": "^5",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@railway/cli": "^4.58.0",
-    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "drizzle-kit": "^0.30.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
-    "tailwindcss": "^4",
-    "tsx": "^4.19.2",
-    "typescript": "^5",
     "vitest": "^2.1.8"
   }
 }
