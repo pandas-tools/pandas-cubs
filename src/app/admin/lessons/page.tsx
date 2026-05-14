@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { eq } from "drizzle-orm";
+import { notFound } from "next/navigation";
 import { db } from "@/lib/db/client";
 import {
   lessons,
@@ -8,11 +8,15 @@ import {
   clients,
 } from "@/lib/db/schema";
 import NewLessonForm from "./NewLessonForm";
+import { auth } from "@/lib/auth";
 
 export const metadata = { title: "Lessons · Admin · Pandas Cubs" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminLessonsPage() {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "admin") notFound();
+
   const [list, allTranslations, allAssignments, allClients] = await Promise.all([
     db.select().from(lessons).orderBy(lessons.sortOrder, lessons.createdAt),
     db.select().from(lessonTranslations),

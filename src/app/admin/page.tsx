@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { db } from "@/lib/db/client";
 import {
   clients,
@@ -7,11 +8,17 @@ import {
   users,
 } from "@/lib/db/schema";
 import { count, eq } from "drizzle-orm";
+import { auth } from "@/lib/auth";
 
 export const metadata = { title: "Admin · Pandas Cubs" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminHome() {
+  // Belt + suspenders — layout already redirects non-admins, but we
+  // self-guard here so the page can never serve data unguarded.
+  const session = await auth();
+  if (!session?.user || session.user.role !== "admin") notFound();
+
   const [clientList, [lessonStat], [completionStat], [userStat]] = await Promise.all([
     db.select().from(clients).orderBy(clients.name),
     db.select({ value: count() }).from(lessons),

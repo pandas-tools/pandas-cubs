@@ -59,9 +59,15 @@ export function verifyMuxSignature(
   }
   if (!signatureHeader) return false;
 
-  const parts = Object.fromEntries(
-    signatureHeader.split(",").map((p) => p.trim().split("=")),
-  );
+  // Robust header parsing — split on the FIRST `=` so signature values
+  // that contain `=` (e.g. base64 padding) aren't truncated.
+  const parts: Record<string, string> = {};
+  for (const part of signatureHeader.split(",")) {
+    const trimmed = part.trim();
+    const idx = trimmed.indexOf("=");
+    if (idx <= 0) continue;
+    parts[trimmed.slice(0, idx)] = trimmed.slice(idx + 1);
+  }
   const ts = parts.t;
   const sig = parts.v1;
   if (!ts || !sig) return false;
@@ -72,19 +78,19 @@ export function verifyMuxSignature(
   const ageSec = Math.abs(Date.now() / 1000 - tsNum);
   if (ageSec > toleranceSeconds) return false;
 
+  // SHA-256 → 32 bytes / 64 hex chars. Reject malformed sigs explicitly
+  // so timingSafeEqual never throws on length mismatch.
+  if (!/^[0-9a-fA-F]{64}$/.test(sig)) return false;
+
   const expected = crypto
     .createHmac("sha256", secret)
     .update(`${ts}.${rawBody}`)
     .digest("hex");
 
-  try {
-    return crypto.timingSafeEqual(
-      Buffer.from(expected, "hex"),
-      Buffer.from(sig, "hex"),
-    );
-  } catch {
-    return false;
-  }
+  return crypto.timingSafeEqual(
+    Buffer.from(expected, "hex"),
+    Buffer.from(sig, "hex"),
+  );
 }
 
 /**

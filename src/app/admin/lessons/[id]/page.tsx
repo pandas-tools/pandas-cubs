@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { eq } from "drizzle-orm";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db/client";
 import {
   lessons,
@@ -19,6 +20,9 @@ export default async function LessonDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "admin") notFound();
+
   const { id } = await params;
   const [[lesson], translations, assignments, allClients] = await Promise.all([
     db.select().from(lessons).where(eq(lessons.id, id)).limit(1),
