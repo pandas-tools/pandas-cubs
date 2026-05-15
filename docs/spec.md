@@ -1,4 +1,4 @@
-# Pandas Training Portal — Technical Design Spec
+# Dojo — Technical Design Spec
 
 **Date:** 2026-04-10
 **Status:** Approved
@@ -8,7 +8,7 @@
 
 ## 1. Purpose
 
-Pandas deploys Vision AI technology to telecom operators and tech retailers across hundreds of retail locations simultaneously. A major operational challenge is training retail employees at scale — there's no capacity for in-person training, and employees are busy. The Training Portal is a standalone web app where employees watch short training videos, learn the platform, and Pandas tracks who's trained and who isn't. Better trained employees means better platform adoption and better results for the client.
+Pandas deploys Vision AI technology to telecom operators and tech retailers across hundreds of retail locations simultaneously. A major operational challenge is training retail employees at scale — there's no capacity for in-person training, and employees are busy. The Dojo is a standalone web app where employees watch short training videos, learn the platform, and Pandas tracks who's trained and who isn't. Better trained employees means better platform adoption and better results for the client.
 
 The platform is designed as a Pandas-internal product first, with the architecture to support becoming a standalone product later.
 
@@ -552,6 +552,6 @@ All analytics are derived from existing tables — no separate analytics tables 
 
 ## 11. Future Vision
 
-The Training Portal is the first use case for a broader **retail employee communication platform**. The same pattern — short video + notes, pushed to distributed employees — works for product launches, policy changes, seasonal promotions, and operational announcements. The data model supports this via the `type` field on lessons without requiring architectural changes.
+The Dojo is the first use case for a broader **retail employee communication platform**. The same pattern — short video + notes, pushed to distributed employees — works for product launches, policy changes, seasonal promotions, and operational announcements. The data model supports this via the `type` field on lessons without requiring architectural changes.
 
 The `role` field on users supports future expansion to `client_admin` without schema changes. A client admin would have `role = 'client_admin'` with a `client_id`, giving them RLS-scoped access to their own client's data plus additional UI surfaces for analytics.
