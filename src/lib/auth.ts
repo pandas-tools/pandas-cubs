@@ -80,25 +80,55 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const needsRefresh =
         !!user?.id ||
         trigger === "update" ||
-        token.onboardingCompleted !== true;
-      if (needsRefresh) {
-        const id = (user?.id ?? token.sub) as string | undefined;
-        if (id) {
-          const [row] = await db
-            .select()
-            .from(users)
-            .where(eq(users.id, id))
-            .limit(1);
-          if (row) {
-            token.uid = row.id;
-            token.role = row.role;
-            token.clientId = row.clientId;
-            token.onboardingCompleted = row.onboardingCompleted;
-            token.preferredLanguage = row.preferredLanguage;
-            token.storeId = row.storeId;
-          }
+        token.onboardingCompleted !== true ||
+        token.role === undefined;
+      if (!needsRefresh) return token;
+
+      const id = (user?.id ?? token.sub) as string | undefined;
+      if (!id) return token;
+
+      const [row] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, id))
+        .limit(1);
+      if (!row) return token;
+
+      // Self-heal: `events.createUser` is fire-and-forget in Auth.js v5,
+      // so on the very first sign-in the JWT callback may run before that
+      // event sets role/client_id. Re-derive them from the email here
+      // (idempotent — same logic as events.createUser) so we never serve
+      // a "employee with null client_id" or a missed-admin token.
+      let role = row.role;
+      let clientId = row.clientId;
+      if (row.email) {
+        const allowed = await checkEmailAllowed(row.email);
+        if (allowed.kind === "admin" && (role !== "admin" || clientId !== null)) {
+          role = "admin";
+          clientId = null;
+          await db
+            .update(users)
+            .set({ role, clientId, updatedAt: new Date() })
+            .where(eq(users.id, row.id));
+        } else if (
+          allowed.kind === "employee" &&
+          (role !== "employee" || clientId !== allowed.clientId)
+        ) {
+          role = "employee";
+          clientId = allowed.clientId;
+          await db
+            .update(users)
+            .set({ role, clientId, updatedAt: new Date() })
+            .where(eq(users.id, row.id));
         }
       }
+
+      token.uid = row.id;
+      token.role = role;
+      token.clientId = clientId;
+      token.onboardingCompleted = row.onboardingCompleted;
+      token.preferredLanguage = row.preferredLanguage;
+      token.storeId = row.storeId;
       return token;
     },
     async session({ session, token }) {
