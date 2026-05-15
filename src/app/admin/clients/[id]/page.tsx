@@ -16,6 +16,7 @@ import {
 import ClientDetailEditor from "./ClientDetailEditor";
 import DomainsEditor from "./DomainsEditor";
 import LanguagesEditor from "./LanguagesEditor";
+import StoresManager from "./StoresManager";
 import DeleteClientButton from "./DeleteClientButton";
 
 export const metadata = { title: "Client · Admin · Dojo" };
@@ -110,6 +111,25 @@ export default async function ClientDetailPage({
         <LanguagesEditor
           clientId={client.id}
           languages={langs.map((l) => l.language)}
+        />
+      </section>
+
+      <section>
+        <h2 className="text-sm font-medium text-zinc-700 mb-2">Stores</h2>
+        <p className="text-xs text-zinc-500 mb-2">
+          Physical locations for this client. Add them one-by-one or paste a
+          CSV. Employees pick their store during onboarding.
+        </p>
+        <StoresManager
+          clientId={client.id}
+          stores={clientStores.map((s) => ({
+            id: s.id,
+            name: s.name,
+            city: s.city,
+            countryCode: s.countryCode,
+            externalId: s.externalId,
+            isActive: s.isActive,
+          }))}
         />
       </section>
 
