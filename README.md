@@ -1,4 +1,4 @@
-# pandas-cubs
+# dojo
 
 Internal training portal for retail employees on Pandas Vision AI + platform. Eventually at **`learn.pandas.io`**.
 

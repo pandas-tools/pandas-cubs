@@ -4,7 +4,7 @@ Any agent (Claude, Codex, anything) starting a session in this repo: read [`CLAU
 
 ## What this app is
 
-**Pandas Cubs** — internal training portal where retail employees watch short videos to learn Pandas Vision AI / platform onboarding. Backend-heavy app: auth, DB, Mux video, admin panel. Eventually served at `learn.pandas.io`.
+**Dojo** — internal training portal where retail employees watch short videos to learn Pandas Vision AI / platform onboarding. Backend-heavy app: auth, DB, Mux video, admin panel. Eventually served at `learn.pandas.io`.
 
 ## Stack quirks worth knowing
 

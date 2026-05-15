@@ -27,18 +27,18 @@ type MuxLanguageCode =
 
 declare global {
   // eslint-disable-next-line no-var
-  var __cubs_mux: Mux | undefined;
+  var __dojo_mux: Mux | undefined;
 }
 
 function getMux(): Mux {
-  if (global.__cubs_mux) return global.__cubs_mux;
+  if (global.__dojo_mux) return global.__dojo_mux;
   const tokenId = process.env.MUX_TOKEN_ID;
   const tokenSecret = process.env.MUX_TOKEN_SECRET;
   if (!tokenId || !tokenSecret) {
     throw new Error("MUX_TOKEN_ID / MUX_TOKEN_SECRET not set");
   }
   const m = new Mux({ tokenId, tokenSecret });
-  if (process.env.NODE_ENV !== "production") global.__cubs_mux = m;
+  if (process.env.NODE_ENV !== "production") global.__dojo_mux = m;
   return m;
 }
 

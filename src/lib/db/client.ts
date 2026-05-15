@@ -4,7 +4,7 @@ import * as schema from "./schema";
 
 declare global {
   // eslint-disable-next-line no-var
-  var __cubs_pg: postgres.Sql | undefined;
+  var __dojo_pg: postgres.Sql | undefined;
 }
 
 const url = process.env.DATABASE_URL;
@@ -14,7 +14,7 @@ if (!url) {
 
 // In dev, reuse the connection across HMR reloads.
 const sql =
-  global.__cubs_pg ??
+  global.__dojo_pg ??
   postgres(url, {
     max: 10,
     idle_timeout: 20,
@@ -22,7 +22,7 @@ const sql =
   });
 
 if (process.env.NODE_ENV !== "production") {
-  global.__cubs_pg = sql;
+  global.__dojo_pg = sql;
 }
 
 export const db = drizzle(sql, { schema, logger: false });

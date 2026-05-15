@@ -1,6 +1,6 @@
 # Decisions
 
-Running ADR for `pandas-cubs`. New decisions go at the top with a date and status. See also `.claude/_studio/decisions/` for cross-project decisions (the stack-pivot rationale lives there).
+Running ADR for `dojo`. New decisions go at the top with a date and status. See also `.claude/_studio/decisions/` for cross-project decisions (the stack-pivot rationale lives there).
 
 ---
 

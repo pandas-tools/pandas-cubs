@@ -10,7 +10,7 @@ import {
 import NewLessonForm from "./NewLessonForm";
 import { auth } from "@/lib/auth";
 
-export const metadata = { title: "Lessons · Admin · Pandas Cubs" };
+export const metadata = { title: "Lessons · Admin · Dojo" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminLessonsPage() {

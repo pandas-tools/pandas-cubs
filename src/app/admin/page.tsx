@@ -10,7 +10,7 @@ import {
 import { count, eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 
-export const metadata = { title: "Admin · Pandas Cubs" };
+export const metadata = { title: "Admin · Dojo" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminHome() {
@@ -34,7 +34,7 @@ export default async function AdminHome() {
       <div>
         <h1 className="text-2xl font-semibold">Overview</h1>
         <p className="text-sm text-zinc-600 mt-1">
-          Pandas Cubs admin panel — manage clients, lessons, and content.
+          Dojo admin panel — manage clients, lessons, and content.
         </p>
       </div>
 

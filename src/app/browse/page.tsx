@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { scopedDb } from "@/lib/db/scoped";
 import { signOutAction } from "../actions";
 
-export const metadata = { title: "Lessons · Pandas Cubs" };
+export const metadata = { title: "Lessons · Dojo" };
 export const dynamic = "force-dynamic";
 
 export default async function BrowsePage() {
@@ -55,7 +55,7 @@ export default async function BrowsePage() {
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-semibold">Pandas Cubs</h1>
+            <h1 className="text-lg font-semibold">Dojo</h1>
             <p className="text-xs text-zinc-500">
               {client?.name ?? "Your client"} · {session.user.email}
             </p>

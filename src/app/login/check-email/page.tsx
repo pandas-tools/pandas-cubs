@@ -1,4 +1,4 @@
-export const metadata = { title: "Check your email · Pandas Cubs" };
+export const metadata = { title: "Check your email · Dojo" };
 
 export default function CheckEmailPage() {
   return (

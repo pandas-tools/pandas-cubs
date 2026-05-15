@@ -18,7 +18,7 @@ export default async function AdminLayout({
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/admin" className="font-semibold">
-              Cubs · Admin
+              Dojo · Admin
             </Link>
             <nav className="flex items-center gap-4 text-sm text-zinc-600">
               <Link href="/admin" className="hover:text-zinc-900">

@@ -1,10 +1,10 @@
 # Deploy
 
-Pandas Cubs runs on **Railway** — app + Postgres in a single project. Eventually mapped to `learn.pandas.io`.
+Dojo runs on **Railway** — app + Postgres in a single project. Eventually mapped to `learn.pandas.io`.
 
 ## Railway
 
-- **Project:** `pandas-cubs` (id `e0bf2e2d-cd72-47ab-85a8-7286d8972198`)
+- **Project:** `dojo` (id `e0bf2e2d-cd72-47ab-85a8-7286d8972198`)
 - **Environment:** `production` (id `f6e41437-0cd1-442e-8dd5-3d4b540930f0`)
 - **Workspace:** Pandas
 - **Services:**

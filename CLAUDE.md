@@ -1,6 +1,6 @@
-# pandas-cubs
+# dojo
 
-**Pandas Cubs** — the internal training portal for retail employees on Pandas Vision AI + platform. Baby panda = trainee. Domain (eventually): `learn.pandas.io`.
+**Dojo** — the internal training portal for retail employees on Pandas Vision AI + platform. Named after the training hall. Domain (eventually): `learn.pandas.io`.
 
 Next.js 16 (App Router) + TypeScript + Tailwind v4 + Drizzle + Auth.js v5 + Mux. Deployed to Railway.
 

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Pandas Cubs",
+  title: "Dojo",
   description: "Training portal for Pandas Vision AI",
 };
 

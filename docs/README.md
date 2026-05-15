@@ -1,6 +1,6 @@
 # docs
 
-Project-scoped documentation for `pandas-cubs`. Read these in order:
+Project-scoped documentation for `dojo`. Read these in order:
 
 1. [`spec.md`](spec.md) — canonical product spec (data model, auth, UX, MVP scope, analytics)
 2. [`architecture.md`](architecture.md) — stack, repo layout, tenant scoping pattern
