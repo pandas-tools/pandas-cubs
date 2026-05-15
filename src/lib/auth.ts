@@ -10,6 +10,7 @@
 // auth.config separately so the Edge runtime never tries to load Drizzle
 // or the postgres-js driver.
 import NextAuth from "next-auth";
+import Resend from "next-auth/providers/resend";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq } from "drizzle-orm";
 import { db } from "./db/client";
@@ -19,6 +20,15 @@ import { authConfig } from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  // Providers live ONLY in the full Node-runtime config. The slim
+  // auth.config slice has providers: [] because Resend pulls Node deps
+  // (the `resend` SDK) that don't run in Edge middleware.
+  providers: [
+    Resend({
+      apiKey: process.env.AUTH_RESEND_KEY,
+      from: process.env.AUTH_EMAIL_FROM,
+    }),
+  ],
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,
