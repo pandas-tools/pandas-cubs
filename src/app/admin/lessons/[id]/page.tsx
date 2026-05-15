@@ -76,7 +76,9 @@ export default async function LessonDetailPage({
               <p className="text-zinc-600">
                 Duration:{" "}
                 {en.durationSeconds
-                  ? `${Math.round(en.durationSeconds / 60)} min`
+                  ? en.durationSeconds < 60
+                    ? `${en.durationSeconds}s`
+                    : `${Math.round(en.durationSeconds / 60)} min`
                   : "—"}
               </p>
               {en.thumbnailUrl && (

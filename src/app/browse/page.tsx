@@ -117,7 +117,11 @@ export default async function BrowsePage() {
                   )}
                   <div className="mt-2 flex items-center gap-2 text-xs text-zinc-500">
                     {card.durationSeconds && (
-                      <span>{Math.ceil(card.durationSeconds / 60)} min</span>
+                      <span>
+                        {card.durationSeconds < 60
+                          ? `${card.durationSeconds}s`
+                          : `${Math.ceil(card.durationSeconds / 60)} min`}
+                      </span>
                     )}
                     {card.language &&
                       card.language !== session.user.preferredLanguage && (
