@@ -5,7 +5,6 @@
 // adapter, JWT self-heal, and createUser events — all of which need
 // Node-runtime database access.
 import type { NextAuthConfig } from "next-auth";
-import Resend from "next-auth/providers/resend";
 
 declare module "next-auth" {
   interface Session {
@@ -29,14 +28,10 @@ export const authConfig: NextAuthConfig = {
     verifyRequest: "/login/check-email",
     error: "/login",
   },
-  providers: [
-    // Provider list only — middleware doesn't actually invoke providers,
-    // but `auth()` config requires at least one to compile.
-    Resend({
-      apiKey: process.env.AUTH_RESEND_KEY,
-      from: process.env.AUTH_EMAIL_FROM,
-    }),
-  ],
+  // Providers are layered on by auth.ts. The Resend provider pulls in
+  // Node-only deps (the `resend` SDK), so it CANNOT live in the Edge-safe
+  // slice — including it here would silently break middleware JWT decode.
+  providers: [],
   callbacks: {
     // Edge-safe: only read claims from the existing token. No DB access.
     // The Node-runtime auth.ts handler does the actual refresh + self-heal.
