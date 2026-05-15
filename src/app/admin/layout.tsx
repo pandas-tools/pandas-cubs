@@ -25,6 +25,7 @@ export default async function AdminLayout({
           <AdminNavLink href="/admin">Overview</AdminNavLink>
           <AdminNavLink href="/admin/lessons">Lessons</AdminNavLink>
           <AdminNavLink href="/admin/clients">Clients</AdminNavLink>
+          <AdminNavLink href="/admin/analytics">Analytics</AdminNavLink>
         </nav>
         <div className="border-t border-zinc-200 px-5 py-4 space-y-2">
           <p className="text-xs text-zinc-500 truncate" title={session.user.email ?? ""}>
