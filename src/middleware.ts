@@ -1,5 +1,15 @@
-import { auth } from "@/lib/auth";
+// Edge-runtime middleware. Imports only the Edge-safe Auth.js config slice
+// (auth.config.ts) — NOT the full auth.ts, which pulls in Drizzle + the
+// postgres-js driver that don't run in Edge.
+//
+// JWT decoding happens in Edge here (Auth.js decrypts the cookie + runs
+// the Edge-safe `session` callback). The Node-runtime API routes do their
+// own auth() check for anything that needs DB-backed claims.
+import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
+import { authConfig } from "@/lib/auth.config";
+
+const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { nextUrl, auth: session } = req;
