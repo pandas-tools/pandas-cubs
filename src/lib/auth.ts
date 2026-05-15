@@ -72,9 +72,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return result.kind !== "rejected";
     },
     async jwt({ token, user, trigger }) {
-      // On sign-in, persist fresh fields from the DB into the JWT.
-      // On subsequent requests, refresh if trigger === 'update'.
-      if (user?.id || trigger === "update") {
+      // Refresh user fields from DB on:
+      //   - sign-in (user is set)
+      //   - explicit unstable_update() call (trigger === 'update')
+      //   - any request where onboardingCompleted is still false (so post-
+      //     onboarding redirects work without a sign-out / sign-in cycle)
+      const needsRefresh =
+        !!user?.id ||
+        trigger === "update" ||
+        token.onboardingCompleted !== true;
+      if (needsRefresh) {
         const id = (user?.id ?? token.sub) as string | undefined;
         if (id) {
           const [row] = await db
