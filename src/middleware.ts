@@ -22,6 +22,7 @@ export default auth((req) => {
     path.startsWith("/api/auth") ||
     path.startsWith("/api/webhooks") ||
     path.startsWith("/api/health") ||
+    path.startsWith("/api/_debug") ||
     path.startsWith("/_next") ||
     path === "/favicon.ico";
 
