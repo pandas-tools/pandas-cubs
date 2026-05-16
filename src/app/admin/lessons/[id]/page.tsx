@@ -9,9 +9,9 @@ import {
   clientLessons,
   clients,
 } from "@/lib/db/schema";
-import UploadWidget from "./UploadWidget";
 import PublishToggle from "./PublishToggle";
 import AssignmentManager from "./AssignmentManager";
+import TranslationsManager from "./TranslationsManager";
 
 export const dynamic = "force-dynamic";
 
@@ -64,40 +64,28 @@ export default async function LessonDetailPage({
 
       <section>
         <h2 className="text-sm font-medium text-zinc-700 mb-2">
-          English video
+          Translations
         </h2>
-        <div className="rounded-md border border-zinc-200 bg-white p-4">
-          {en?.muxPlaybackId ? (
-            <div className="text-sm space-y-1">
-              <p className="text-emerald-700">
-                ✓ Ready — playback ID{" "}
-                <code className="font-mono text-xs">{en.muxPlaybackId}</code>
-              </p>
-              <p className="text-zinc-600">
-                Duration:{" "}
-                {en.durationSeconds
-                  ? en.durationSeconds < 60
-                    ? `${en.durationSeconds}s`
-                    : `${Math.round(en.durationSeconds / 60)} min`
-                  : "—"}
-              </p>
-              {en.thumbnailUrl && (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={en.thumbnailUrl}
-                  alt="Thumbnail"
-                  className="mt-2 max-w-xs rounded-md border border-zinc-200"
-                />
-              )}
-            </div>
-          ) : en?.muxUploadId ? (
-            <p className="text-sm text-amber-700">
-              ⏳ Upload in progress / Mux processing. Refresh in a minute.
-            </p>
-          ) : (
-            <UploadWidget lessonId={lesson.id} translationId={en?.id ?? null} />
-          )}
-        </div>
+        <p className="text-xs text-zinc-500 mb-2">
+          The English translation is required and acts as the system-wide
+          fallback. Add other languages with their own title + description +
+          video (dubbed) or sharing the English video (subtitled — Mux
+          auto-generates captions per asset).
+        </p>
+        <TranslationsManager
+          lessonId={lesson.id}
+          translations={translations.map((t) => ({
+            id: t.id,
+            language: t.language,
+            title: t.title,
+            description: t.description,
+            notesMarkdown: t.notesMarkdown,
+            muxPlaybackId: t.muxPlaybackId,
+            muxUploadId: t.muxUploadId,
+            durationSeconds: t.durationSeconds,
+            thumbnailUrl: t.thumbnailUrl,
+          }))}
+        />
       </section>
 
       <section>
