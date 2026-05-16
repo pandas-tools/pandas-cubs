@@ -48,27 +48,48 @@ export async function getClientAnalytics(): Promise<ClientAnalytics[]> {
   const employeesByClient = group(employeeRows, (u) => u.clientId ?? "");
   const lessonsByClient = group(clientLessonRows, (cl) => cl.clientId);
 
-  // Map: userId → number of completions (across all lessons)
-  const completionsByUser = new Map<string, number>();
-  const ratingsByClient = new Map<string, number[]>();
-  const completedUserIdsByClient = new Map<string, Set<string>>();
-  // We need userId → clientId to attribute completions to clients
+  // Per-client lesson-assignment set so we can attribute completions strictly
+  // to a user's *current* client's curriculum. Without this, if a user ever
+  // moves between clients (today: not possible via UI; future-proof anyway),
+  // their stale completions would inflate the new client's "trained" count.
+  const assignedLessonsByClient = new Map<string, Set<string>>();
+  for (const cl of clientLessonRows) {
+    const set = assignedLessonsByClient.get(cl.clientId) ?? new Set<string>();
+    set.add(cl.lessonId);
+    assignedLessonsByClient.set(cl.clientId, set);
+  }
+
+  // userId → clientId, used to filter completions to the user's curriculum.
   const userToClient = new Map<string, string>();
   for (const u of employeeRows) {
     if (u.clientId) userToClient.set(u.id, u.clientId);
   }
-  for (const c of completionRows) {
-    completionsByUser.set(c.userId, (completionsByUser.get(c.userId) ?? 0) + 1);
-    const cid = userToClient.get(c.userId);
-    if (cid) {
-      const ratings = ratingsByClient.get(cid) ?? [];
-      ratings.push(c.rating);
-      ratingsByClient.set(cid, ratings);
 
-      const completedSet = completedUserIdsByClient.get(cid) ?? new Set<string>();
-      completedSet.add(c.userId);
-      completedUserIdsByClient.set(cid, completedSet);
-    }
+  // Map: userId → count of completions that are FOR LESSONS ASSIGNED TO
+  // THE USER'S CURRENT CLIENT. Completions for lessons no longer assigned
+  // (or never assigned) to the user's client don't count toward "trained".
+  const inScopeCompletionsByUser = new Map<string, number>();
+  const ratingsByClient = new Map<string, number[]>();
+  const completedUserIdsByClient = new Map<string, Set<string>>();
+
+  for (const c of completionRows) {
+    const cid = userToClient.get(c.userId);
+    if (!cid) continue; // orphaned completion (user has no client) — skip
+    const assignedToClient = assignedLessonsByClient.get(cid);
+    if (!assignedToClient?.has(c.lessonId)) continue; // completion is for
+    // a lesson not currently assigned to this user's client — don't count
+
+    inScopeCompletionsByUser.set(
+      c.userId,
+      (inScopeCompletionsByUser.get(c.userId) ?? 0) + 1,
+    );
+    const ratings = ratingsByClient.get(cid) ?? [];
+    ratings.push(c.rating);
+    ratingsByClient.set(cid, ratings);
+    const completedSet =
+      completedUserIdsByClient.get(cid) ?? new Set<string>();
+    completedSet.add(c.userId);
+    completedUserIdsByClient.set(cid, completedSet);
   }
 
   return clientRows.map((c): ClientAnalytics => {
@@ -86,11 +107,12 @@ export async function getClientAnalytics(): Promise<ClientAnalytics[]> {
       }
     }
 
-    // Trained employees: completed ALL assigned lessons
+    // Trained employees: completed ALL assigned lessons (only in-scope
+    // completions count — see inScopeCompletionsByUser construction above)
     let trainedEmployeeCount = 0;
     if (clientAssigned > 0) {
       for (const u of clientEmployees) {
-        if ((completionsByUser.get(u.id) ?? 0) >= clientAssigned) {
+        if ((inScopeCompletionsByUser.get(u.id) ?? 0) >= clientAssigned) {
           trainedEmployeeCount++;
         }
       }

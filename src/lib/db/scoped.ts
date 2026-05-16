@@ -114,6 +114,51 @@ export function scopedDb(user: ScopedUser) {
         if (inPreferred) return inPreferred;
         return all.find((t) => t.language === "en") ?? null;
       },
+
+      /**
+       * Batch sibling of forLesson(). For a list of lesson IDs (which must
+       * already be filtered to this client's assigned lessons — typically
+       * the result of lessons.list()), returns a Map keyed by lessonId of
+       * the best-matching translation in `preferred` with EN fallback.
+       *
+       * Two queries total (vs. 2N from calling forLesson in a loop):
+       *   1. client_lessons → filter input ids to this client's assignments
+       *   2. lesson_translations → all translations for those lessons
+       */
+      forLessons: async (
+        lessonIds: string[],
+        preferred: string,
+      ): Promise<Map<string, typeof lessonTranslations.$inferSelect>> => {
+        const out = new Map<string, typeof lessonTranslations.$inferSelect>();
+        if (lessonIds.length === 0) return out;
+        const assignments = await db
+          .select()
+          .from(clientLessons)
+          .where(eq(clientLessons.clientId, cid));
+        const assignedSet = new Set(assignments.map((a) => a.lessonId));
+        const safeIds = lessonIds.filter((id) => assignedSet.has(id));
+        if (safeIds.length === 0) return out;
+        const all = await db.query.lessonTranslations.findMany({
+          where: (t, { inArray }) => inArray(t.lessonId, safeIds),
+        });
+        const byLesson = new Map<
+          string,
+          (typeof lessonTranslations.$inferSelect)[]
+        >();
+        for (const t of all) {
+          const arr = byLesson.get(t.lessonId) ?? [];
+          arr.push(t);
+          byLesson.set(t.lessonId, arr);
+        }
+        for (const id of safeIds) {
+          const candidates = byLesson.get(id) ?? [];
+          const pref = candidates.find((t) => t.language === preferred);
+          const en = candidates.find((t) => t.language === "en");
+          const chosen = pref ?? en;
+          if (chosen) out.set(id, chosen);
+        }
+        return out;
+      },
     },
 
     completions: {

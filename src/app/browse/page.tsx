@@ -28,24 +28,26 @@ export default async function BrowsePage() {
 
   const completedIds = new Set(completions.map((c) => c.lessonId));
 
-  // Hydrate each lesson with a translation in the user's preferred language
-  const cards = await Promise.all(
-    lessons.map(async (lesson) => {
-      const translation = await sdb.translations.forLesson(
-        lesson.id,
-        session.user.preferredLanguage,
-      );
-      return {
-        id: lesson.id,
-        title: translation?.title ?? lesson.internalName,
-        description: translation?.description ?? null,
-        thumbnail: translation?.thumbnailUrl ?? null,
-        durationSeconds: translation?.durationSeconds ?? null,
-        completed: completedIds.has(lesson.id),
-        language: translation?.language ?? null,
-      };
-    }),
+  // Hydrate each lesson with a translation in the user's preferred language.
+  // Single batched fetch — `forLessons` resolves the preferred-or-English
+  // fallback in memory after one query for all assignment rows + one query
+  // for all translations.
+  const translationsByLesson = await sdb.translations.forLessons(
+    lessons.map((l) => l.id),
+    session.user.preferredLanguage,
   );
+  const cards = lessons.map((lesson) => {
+    const translation = translationsByLesson.get(lesson.id) ?? null;
+    return {
+      id: lesson.id,
+      title: translation?.title ?? lesson.internalName,
+      description: translation?.description ?? null,
+      thumbnail: translation?.thumbnailUrl ?? null,
+      durationSeconds: translation?.durationSeconds ?? null,
+      completed: completedIds.has(lesson.id),
+      language: translation?.language ?? null,
+    };
+  });
 
   const ready = cards.filter((c) => c.thumbnail !== null);
   const processing = cards.filter((c) => c.thumbnail === null);

@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, max } from "drizzle-orm";
+import { and, eq, max } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db/client";
@@ -95,7 +95,6 @@ export async function unassignFromClient(lessonId: string, clientId: string) {
   } catch {
     return { error: "forbidden" };
   }
-  const { and } = await import("drizzle-orm");
   await db
     .delete(clientLessons)
     .where(

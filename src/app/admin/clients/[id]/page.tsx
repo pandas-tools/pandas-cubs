@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db/client";
 import {
@@ -57,7 +57,12 @@ export default async function ClientDetailPage({
     const enTranslations = await db
       .select()
       .from(lessonTranslations)
-      .where(eq(lessonTranslations.language, "en"));
+      .where(
+        and(
+          eq(lessonTranslations.language, "en"),
+          inArray(lessonTranslations.lessonId, lessonIds),
+        ),
+      );
     const titleByLesson = new Map(
       enTranslations.map((t) => [t.lessonId, t.title]),
     );
