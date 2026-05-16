@@ -56,10 +56,10 @@ function ClientCard({ c }: { c: ClientAnalytics }) {
           </p>
         </div>
         <Link
-          href={`/admin/clients/${c.clientId}`}
+          href={`/admin/analytics/${c.clientId}`}
           className="text-sm text-zinc-700 hover:underline"
         >
-          Open client →
+          Detail →
         </Link>
       </div>
 
