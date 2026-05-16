@@ -1,7 +1,7 @@
 "use server";
 
 import { eq } from "drizzle-orm";
-import { auth } from "@/lib/auth";
+import { auth, unstable_update } from "@/lib/auth";
 import { db } from "@/lib/db/client";
 import { users, stores } from "@/lib/db/schema";
 
@@ -36,6 +36,19 @@ export async function completeOnboarding(input: {
       updatedAt: new Date(),
     })
     .where(eq(users.id, session.user.id));
+
+  // Force Auth.js to re-encrypt the JWT cookie with the fresh DB values so
+  // middleware (which runs the Edge-safe slim config and never queries the
+  // DB) sees onboardingCompleted=true on the very next request. Without
+  // this, /browse → middleware reads stale token.onboardingCompleted=false
+  // → redirects back to /onboarding → loop.
+  await unstable_update({
+    user: {
+      preferredLanguage: input.language,
+      storeId: input.storeId,
+      onboardingCompleted: true,
+    },
+  });
 
   return { ok: true };
 }

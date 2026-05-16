@@ -18,7 +18,7 @@ import { users, accounts, verificationTokens } from "./db/schema";
 import { checkEmailAllowed } from "./domain";
 import { authConfig } from "./auth.config";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   // Providers live ONLY in the full Node-runtime config. The slim
   // auth.config slice has providers: [] because Resend pulls Node deps
